@@ -9,3 +9,9 @@ In this project I create a 4 docker instances:
 - metrics container that gets real price value and prediction and calculate RMSE values of model
 
 This is simpe but interesting project, that helps me take basic knowledge of this techonoly!
+
+## Run project
+
+```
+sudo docker-copmose up -d
+```
