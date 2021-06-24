@@ -1,0 +1,42 @@
+version: '3.7'
+services:
+  rabbitmq:
+      image: rabbitmq:3-management
+      container_name: rabbitmq
+      hostname: rabbitmq
+      restart: always
+      ports:
+          - 5672:5672
+          - 15672:15672
+  features:
+      build:
+        context: ./features
+      restart: always
+      environment:
+        - RABBIT_HOST=rabbitmq
+      depends_on:
+        - rabbitmq
+      command: bash -c 'while !</dev/tcp/rabbitmq/5672; do sleep 1; done; python features.py'
+  model:
+    build:
+      context: ./model
+    restart: always
+    environment:
+      - RABBIT_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+      - features
+    command: bash -c 'while !</dev/tcp/rabbitmq/5672; do sleep 1; done; python model.py'
+  metrics:
+    build:
+      context: ./metrics
+    restart: always
+    environment:
+      - RABBIT_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+      - features
+      - model
+    command: bash -c 'while !</dev/tcp/rabbitmq/5672; do sleep 1; done; python metrics.py'
+    volumes:
+      - ./logs:/app/logs
